@@ -18,9 +18,9 @@ $empController = new EmployeeController($empModel);
 if (isset($_GET["id"])) {
     $emp_id = $_GET["id"];
 
-    $empController->deleteEmp($emp_id);
+    $result = $empController->deleteEmp($emp_id);
 
-    if ($empController->deleteEmp($emp_id)) {
+    if ($result['success']) {
         $_SESSION['successMsg'] = "Employee $emp_id deleted successfully";
     } else {
         $_SESSION['errorMsg'] = "Failed to delete user";

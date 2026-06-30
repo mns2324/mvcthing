@@ -20,38 +20,23 @@ $errorMsg = "";
 $successMsg = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $firstname = $_POST['firstname'];
-    $surname = $_POST['surname'];
-    $role = $_POST['role'];
-    $payroll = $_POST['payroll'];
-    $full_time = $_POST['full_time'];
+    // pass the user inputs to the controller for validation
+    $result = $empController->createEmp(
+        $_POST['firstname'],
+        $_POST['surname'],
+        $_POST['role'],
+        $_POST['payroll'],
+        $_POST['full_time']
+    );
 
-    do {
-        // check if fields are empty (dont use empty() since 0 in the text field is considered empty and will display the error)
-        if (trim($firstname) === "" || trim($surname) === "" || trim($role) === "" || trim($payroll) === "" || trim($full_time) === "") {
-            $errorMsg = "Don't leave any fields blank. Thank you.";
-            break;
-        }
-
-        $full_time = strtolower($full_time);
-
-        // check if full_time has incorrect input
-        if ($full_time !== "yes" && $full_time !== "no" && $full_time !== "1" && $full_time !== "0") {
-            $errorMsg = "Type (yes/no) or (1/0) into this field only.";
-            break;
-        }
-
-        $full_time = ($full_time === "yes" || $full_time === "1") ? 1 : 0;
-
-        $empController->createEmp($firstname, $surname, $role, $payroll, $full_time);
-
-        $_SESSION['successMsg'] = "User added successfully";
-
-        // redirect to index and stop executing this file
+    // if validated, redirect to index and display the success message
+    if ($result['success']) {
+        $_SESSION['successMsg'] = "Employee added successfully";
         header("Location: index.php");
         exit;
+    }
 
-    } while (false);
+    $errorMsg = $result['message'];
 }
 ?>
 

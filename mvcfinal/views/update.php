@@ -51,32 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $payroll = $_POST['payroll'];
     $full_time = $_POST['full_time'];
 
-    do {
-        // check if fields are empty (dont use empty() since 0 in the text field is considered empty and will display the error)
-        if (trim($firstname) === "" || trim($surname) === "" || trim($role) === "" || trim($payroll) === "" || trim($full_time) === "") {
-            $errorMsg = "Don't leave any fields blank. Thank you.";
-            break;
-        }
+    // pass the user inputs to the controller for validation
+    $result = $empController->updateEmp($emp_id, $firstname, $surname, $role, $payroll, $full_time);
 
-        $full_time = strtolower($full_time);
-
-        // check if full_time has incorrect input
-        if ($full_time !== "yes" && $full_time !== "no" && $full_time !== "1" && $full_time !== "0") {
-            $errorMsg = "Type (yes/no) or (1/0) into this field only.";
-            break;
-        }
-
-        $full_time = ($full_time === "yes" || $full_time === "1") ? 1 : 0;
-
-        $empController->updateEmp($emp_id, $firstname, $surname, $role, $payroll, $full_time);
-
+    // if validated, redirect to index and display the success message
+    if ($result['success']) {
         $_SESSION['successMsg'] = "Employee $emp_id updated successfully.";
-
-        // redirect to index and stop executing this file
         header("Location: index.php");
         exit;
+    }
 
-    } while (false);
+    $errorMsg = $result['message'];
 }
 ?>
 

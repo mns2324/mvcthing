@@ -19,41 +19,26 @@ $db = new Database();
 $userModel = new SiteUsers($db);
 $userController = new SiteUserController($userModel);
 
-
 $username = $password = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // check if username is empty
-    if (empty(trim($_POST["username"]))) {
-        $errorMsg = "Please enter username.";
-    } else {
-        $username = trim($_POST["username"]);
+    $result = $userController->login(
+        $_POST['username'],
+        $_POST['password']
+    );
+
+    if ($result['success']) {
+
+        $_SESSION['logged_in'] = true;
+        $_SESSION['site_id'] = $result['user']['site_id'];
+        $_SESSION['username'] = $result['user']['username'];
+        $_SESSION['welcomeMsg'] = "Welcome, " . $_SESSION['username'] . "!";
+
+        header("Location: index.php");
+        exit;
     }
 
-    // check if password is empty
-    if (empty(trim($_POST["password"]))) {
-        $errorMsg = "Please enter your password.";
-    } else {
-        $password = trim($_POST["password"]);
-    }
-
-    if (empty($errorMsg)) {
-        $user = $userController->getWebUserByName($username);
-
-        // check if user exists and entered password matches that user's password
-        if ($user && $password === $user["password"]) {
-            // store data in session variables
-            $_SESSION["logged_in"] = true;
-            $_SESSION["site_id"] = $user["site_id"];
-            $_SESSION["username"] = $username;
-            $_SESSION['welcomeMsg'] = "Welcome, " . $_SESSION['username'] . "!";
-
-            header("Location: index.php");
-            exit;
-        } else {
-            $errorMsg = "Invalid username or password.";
-        }
-    }
+    $errorMsg = $result['message'];
 }
 ?>
 
